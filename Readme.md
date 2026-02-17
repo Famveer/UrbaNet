@@ -26,11 +26,12 @@ Obtain the Place Pulse 2.0 dataset [here](https://drive.google.com/drive/folders
 * First, run the notebook `notebooks/Data/Organize_Information.ipynb`.  
   Second, run the notebook `notebooks/Data/Process_XX_scores.ipynb`.  
   Then, run the notebook `notebooks/Data/Statistics.ipynb`.  
-  Next, run the notebook `notebooks/Data/Feature_Extraction.ipynb`.  
 
-* Train models running `notebooks/Models/`.  
-  Then, run explanations at `notebooks/Explanations/`.  
-
+* Train models running `notebooks/Models/Convolutional_Networks.ipynb`.  
+  Then, run explanations at `notebooks/Explanations/XAI.ipynb`.  
+  Next, extract features at `notebooks/Models/Feature_Extraction.ipynb`.  
+  Finally, perform classifier with `notebooks/Models/Linear_Models.ipynb`.  
+  
 # Citation
 
 ```
