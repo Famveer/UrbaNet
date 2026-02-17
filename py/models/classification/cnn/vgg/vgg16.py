@@ -29,17 +29,18 @@ class VGG16(nn.Module):
         
         # Build classifier head
         if use_gap:
-            self.gap = nn.AdaptiveAvgPool2d((1, 1))
+            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
             self.classifier = self._build_mlp_head(512, num_classes)
             self.model_name = "VGG16_GAP"
             
         elif use_mlp:
-            self.gap = None
+            self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
             self.classifier = self._build_mlp_head(512 * 7 * 7, num_classes)
             self.model_name = "VGG16_MLP"
             
         else:
-            self.gap = None
+            # Use pretrained classifier with avgpool
+            self.avgpool = vgg16_pretrained.avgpool
             self.classifier = vgg16_pretrained.classifier
             self.classifier[6] = nn.Linear(4096, num_classes)
             nn.init.xavier_uniform_(self.classifier[6].weight)
@@ -67,8 +68,7 @@ class VGG16(nn.Module):
     
     def forward(self, x):
         x = self.feature_maps(x)
-        if self.use_gap:
-            x = self.gap(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
         x = self.classifier(x)
         return x
-
