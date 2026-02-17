@@ -24,7 +24,7 @@ Obtain the Place Pulse 2.0 dataset [here](https://drive.google.com/drive/folders
     MODEL_PATH=/path_to/models/
   ```
 * First, run the notebook `notebooks/Data/Organize_Information.ipynb`.  
-  Second, run the notebook `notebooks/Data/Process_XX_scores.ipynb`.  
+  Second, run the notebook `notebooks/Data/Comparisons_to_Scores.ipynb`.  
   Then, run the notebook `notebooks/Data/Statistics.ipynb`.  
 
 * Train models running `notebooks/Models/Convolutional_Networks.ipynb`.  
