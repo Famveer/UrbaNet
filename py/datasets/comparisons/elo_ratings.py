@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 from collections import defaultdict
-
 from .base_comparison import BaseComparison
-
 
 class EloRatings(BaseComparison):
     """
@@ -34,7 +32,8 @@ class EloRatings(BaseComparison):
     # ------------------------------------------------------------------
 
     def calculate(self, metric="safety", initial_rating=0, K=100,
-                  max_K=40, min_K=10, adaptative_K=False):
+                  max_K=40, min_K=10, adaptative_K=False,
+                  sort_by_time=True, timestamp_col="timestamp"):
         """
         Compute Elo ratings for *metric*.
 
@@ -45,8 +44,16 @@ class EloRatings(BaseComparison):
         K : int                  Base K-factor.
         max_K, min_K : int       Bounds for adaptive K.
         adaptative_K : bool      Whether to use adaptive K.
+        sort_by_time : bool      Sort comparisons by timestamp (recommended: True)
+        timestamp_col : str      Name of timestamp column (default: "timestamp")
+        
+        Note
+        ----
+        Elo is sequential - the ORDER of matches affects results!
+        Always use sort_by_time=True if you have timestamps.
         """
-        self.prepare_matches(metric=metric)
+        self.prepare_matches(metric=metric, sort_by_time=sort_by_time, 
+                           timestamp_col=timestamp_col)
         df_ = self.get_matches().copy()
         print(f"Analyzing {df_.shape[0]} '{metric}' comparisons")
 

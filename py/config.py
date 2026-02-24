@@ -16,7 +16,7 @@ class Config(BaseSettings):
     
     SCORING_METHOD: str = os.getenv('SCORING_METHOD', "Qscores")
     PERCEPTION_METRIC: str = os.getenv('PERCEPTION_METRIC', "safety")
-    PLACE_LEVEL: str = os.getenv('PLACE_LEVEL', "")
+    PLACE_LEVEL: str = os.getenv('PLACE_LEVEL', None)
     CITY_STUDIED: str = os.getenv('CITY_STUDIED', "Rio De Janeiro")
     DELTA: float  = float(os.getenv('DELTA', "0.42"))
 

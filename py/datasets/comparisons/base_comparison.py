@@ -70,15 +70,33 @@ class BaseComparison:
         df_.sort_values(by=["image_id"], inplace=True)
         return df_
 
-    def prepare_matches(self, metric="safety"):
+    def prepare_matches(self, metric="safety", sort_by_time=False, timestamp_col="timestamp"):
         """
         Filter comparisons to *metric*, store raw matches, and build the
         de-duplicated images lookup table (self.images_df).
+
+        Parameters
+        ----------
+        metric : str
+            Category to filter by
+        sort_by_time : bool
+            If True, sort matches by timestamp before processing.
+            Important for sequential methods (Elo, TrueSkill).
+        timestamp_col : str
+            Name of the timestamp column (default: "timestamp")
 
         Subclasses that need extra artefacts (e.g. image_to_idx) should call
         super().prepare_matches(metric) first, then extend.
         """
         df_ = self.comparisons_df[self.comparisons_df["category"] == metric].copy()
+        
+        # Sort by timestamp if requested and column exists
+        if sort_by_time and timestamp_col in df_.columns:
+            df_ = df_.sort_values(by=timestamp_col).reset_index(drop=True)
+            print(f" Sorted {len(df_)} comparisons by timestamp")
+        elif sort_by_time and timestamp_col not in df_.columns:
+            print(f" Warning: sort_by_time=True but '{timestamp_col}' column not found")
+        
         self.matches_df = df_
 
         left_df  = self.filter_player(df_, player="left")

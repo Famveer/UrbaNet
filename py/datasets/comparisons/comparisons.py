@@ -3,6 +3,7 @@ import pandas as pd
 from .elo_ratings import EloRatings
 from .ahp_weights import AHPWeights
 from .q_scores    import QScores
+from .trueskill_ranks import TrueSkillRanks
 
 METHOD_MAP = {
     "EloRatings":           EloRatings,
@@ -16,7 +17,12 @@ METHOD_MAP = {
     
     "qscores":              QScores,
     "Qscores":              QScores,
-    "schedule_of_strength": QScores,
+    "strength_of_schedule": QScores,
+    
+    "TrueSkill":            TrueSkillRanks,
+    "trueskill":            TrueSkillRanks,
+    "TS_ranks":             TrueSkillRanks,
+    "ts_ranks":             TrueSkillRanks,
 }
 
 
@@ -49,9 +55,29 @@ class Comparisons:
     # One-shot
     results = Comparisons(df, method_name="elo_ratings").fit(metric="safety", K=32)
 
-    # Step by step
-    comp = Comparisons(df, method_name="ahp_weights", place_level="city")
-    comp.calculate(metric="safety", method="matrix")
+    # Choose your method and run:
+
+    # OPTION 1: Elo
+    comp = Comparisons(df, method_name="elo_ratings", place_level="all")
+    comp.calculate(metric="safety", K=32, sort_by_time=True)
+    comp.normalize(min_range=0, max_range=10)
+    results = comp.get_scores()
+
+    # OPTION 2: AHP
+    comp = Comparisons(df, method_name="ahp_weights", place_level="all")
+    comp.calculate(metric="safety", method="dict")
+    comp.normalize(min_range=0, max_range=10)
+    results = comp.get_scores()
+
+    # OPTION 3: Q-Scores
+    comp = Comparisons(df, method_name="qscores", place_level="all")
+    comp.calculate(metric="safety")
+    comp.normalize(min_range=0, max_range=10)
+    results = comp.get_scores()
+
+    # OPTION 4: TrueSkill
+    comp = Comparisons(df, method_name="trueskill", place_level="all")
+    comp.calculate(metric="safety", mu=25, sort_by_time=True)
     comp.normalize(min_range=0, max_range=10)
     results = comp.get_scores()
     """
