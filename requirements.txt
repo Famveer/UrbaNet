@@ -18,3 +18,4 @@ dotenv
 pydantic-settings
 scikit-image
 lime
+trueskill

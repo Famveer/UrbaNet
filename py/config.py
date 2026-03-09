@@ -18,6 +18,8 @@ class Config(BaseSettings):
     PERCEPTION_METRIC: str = os.getenv('PERCEPTION_METRIC', "safety")
     PLACE_LEVEL: str = os.getenv('PLACE_LEVEL', "")
     CITY_STUDIED: str = os.getenv('CITY_STUDIED', "Rio De Janeiro")
+    COMPARISON_THRESHOLD: int = int(os.getenv('COMPARISON_THRESHOLD', "5"))
+    
     DELTA: float  = float(os.getenv('DELTA', "0.42"))
 
     RANDOM_STATE: int = int(os.getenv('RANDOM_STATE', "42"))

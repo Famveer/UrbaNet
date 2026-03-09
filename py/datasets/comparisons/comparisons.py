@@ -59,25 +59,29 @@ class Comparisons:
 
     # OPTION 1: Elo
     comp = Comparisons(df, method_name="elo_ratings", place_level="all")
-    comp.calculate(metric="safety", K=32, sort_by_time=True)
+    comp.prepare_matches(metric="safety")
+    comp.calculate(K=32, sort_by_time=True)
     comp.normalize(min_range=0, max_range=10)
     results = comp.get_scores()
 
     # OPTION 2: AHP
     comp = Comparisons(df, method_name="ahp_weights", place_level="all")
-    comp.calculate(metric="safety", method="dict")
+    comp.prepare_matches(metric="safety")
+    comp.calculate(method="dict")
     comp.normalize(min_range=0, max_range=10)
     results = comp.get_scores()
 
     # OPTION 3: Q-Scores
     comp = Comparisons(df, method_name="qscores", place_level="all")
-    comp.calculate(metric="safety")
+    comp.prepare_matches(metric="safety")
+    comp.calculate()
     comp.normalize(min_range=0, max_range=10)
     results = comp.get_scores()
 
     # OPTION 4: TrueSkill
     comp = Comparisons(df, method_name="trueskill", place_level="all")
-    comp.calculate(metric="safety", mu=25, sort_by_time=True)
+    comp.prepare_matches(metric="safety")
+    comp.calculate(mu=25, sort_by_time=True)
     comp.normalize(min_range=0, max_range=10)
     results = comp.get_scores()
     """
@@ -96,6 +100,8 @@ class Comparisons:
                 f"Unknown method '{method_name}'. "
                 f"Choose from: {list(METHOD_MAP.keys())}"
             )
+        else:
+            print(f"Using {method_name}.")
 
         self.method_name = method_name
         self._backend = METHOD_MAP[method_name](
@@ -109,6 +115,10 @@ class Comparisons:
     # Delegate the full shared interface to the backend
     # ------------------------------------------------------------------
 
+    def prepare_matches(self, metric="safety", sort_by_time=False, timestamp_col="timestamp", comparison_threshold=0):
+        return self._backend.prepare_matches(metric=metric, sort_by_time=sort_by_time, 
+                           timestamp_col=timestamp_col, comparison_threshold=comparison_threshold)
+
     def get_metrics(self):
         """Return the unique category labels in the dataset."""
         return self._backend.get_metrics()
@@ -116,8 +126,17 @@ class Comparisons:
     def get_matches(self):
         """Return the raw matches DataFrame for the last computed metric."""
         return self._backend.get_matches()
+    
+    def get_summarize_matches(self):
+        return self._backend.get_summarize_matches()
+    
+    def get_evaluations(self):
+        return self._backend.evaluations_df
+    
+    def get_samples(self):
+        return self._backend.samples_df
 
-    def calculate(self, metric: str = "safety", **kwargs):
+    def calculate(self, **kwargs):
         """
         Run the scoring algorithm for *metric*.
 
@@ -127,7 +146,7 @@ class Comparisons:
         ahp_weights   → method ("dict" | "matrix")
         qscores       → (none)
         """
-        self._backend.calculate(metric=metric, **kwargs)
+        self._backend.calculate(**kwargs)
         return self
 
     def normalize(self, normalize: bool = True,

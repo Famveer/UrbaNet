@@ -31,15 +31,14 @@ class EloRatings(BaseComparison):
     # BaseComparison interface
     # ------------------------------------------------------------------
 
-    def calculate(self, metric="safety", initial_rating=0, K=100,
+    def calculate(self, initial_rating=0, K=100,
                   max_K=40, min_K=10, adaptative_K=False,
-                  sort_by_time=True, timestamp_col="timestamp"):
+                  ):
         """
         Compute Elo ratings for *metric*.
 
         Parameters
         ----------
-        metric : str
         initial_rating : float   Starting rating for every image.
         K : int                  Base K-factor.
         max_K, min_K : int       Bounds for adaptive K.
@@ -52,11 +51,8 @@ class EloRatings(BaseComparison):
         Elo is sequential - the ORDER of matches affects results!
         Always use sort_by_time=True if you have timestamps.
         """
-        self.prepare_matches(metric=metric, sort_by_time=sort_by_time, 
-                           timestamp_col=timestamp_col)
         df_ = self.get_matches().copy()
-        print(f"Analyzing {df_.shape[0]} '{metric}' comparisons")
-
+        print(f" Processing {df_.shape[0]} comparisons")
         self.initial_K = K
         self.max_K = max_K
         self.min_K = min_K
@@ -100,7 +96,7 @@ class EloRatings(BaseComparison):
             df_, raw_col="EloRating", score_col="EloScore",
             normalize=normalize, min_range=min_range, max_range=max_range
         )
-        self.scores_df = pd.merge(df_, self.images_df, on="image_id", how="left")
+        self.scores_df = pd.merge(df_, self.samples_df, on="image_id", how="left")
 
     def get_scores(self) -> pd.DataFrame:
         """Return the scored DataFrame (columns: image_id, EloRating, EloScore, geo…)."""

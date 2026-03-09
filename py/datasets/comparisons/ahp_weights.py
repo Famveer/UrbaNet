@@ -19,30 +19,28 @@ class AHPWeights(BaseComparison):
     """
 
     # ------------------------------------------------------------------
-    # Override prepare_matches to build index structures required by AHP
+    # Build index structures required by AHP
     # ------------------------------------------------------------------
 
-    def prepare_matches(self, metric="safety"):
-        super().prepare_matches(metric=metric)
-        self.image_ids = np.sort(self.images_df["image_id"].unique()).tolist()
+    def _build_index(self):
+        self.image_ids = np.sort(self.samples_df["image_id"].unique()).tolist()
         self.image_to_idx = {img: idx for idx, img in enumerate(self.image_ids)}
 
     # ------------------------------------------------------------------
     # BaseComparison interface
     # ------------------------------------------------------------------
 
-    def calculate(self, metric="safety", method="dict"):
+    def calculate(self, method="dict"):
         """
-        Compute AHP priority vector for *metric*.
+        Compute AHP priority vector.
 
         Parameters
         ----------
-        metric : str
         method : str   "dict" | "matrix" | "dataframe"
         """
-        self.prepare_matches(metric=metric)
+        self._build_index()
         df_ = self.get_matches().copy()
-        print(f"Analyzing {df_.shape[0]} '{metric}' comparisons")
+        print(f" Processing {df_.shape[0]} comparisons")
 
         self._build_votes(df_, method=method)
         self._build_ahp(method=method)
@@ -60,7 +58,7 @@ class AHPWeights(BaseComparison):
             normalize=normalize, min_range=min_range, max_range=max_range,
             epsilon=epsilon
         )
-        self.scores_df = pd.merge(df_, self.images_df, on="image_id", how="left")
+        self.scores_df = pd.merge(df_, self.samples_df, on="image_id", how="left")
 
     def get_scores(self) -> pd.DataFrame:
         """Return the scored DataFrame (columns: image_id, AHPweight, AHPScore, geo…)."""

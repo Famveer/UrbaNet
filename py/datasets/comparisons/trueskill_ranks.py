@@ -41,23 +41,18 @@ class TrueSkillRanks(BaseComparison):
 
     def calculate(
         self,
-        metric="safety",
         mu=25.0,
         sigma=None,
         beta=None,
         tau=None,
         draw_probability=0.10,
         backend="scipy",
-        sort_by_time=True,
-        timestamp_col="timestamp",
     ):
         """
-        Compute TrueSkill ratings for *metric*.
+        Compute TrueSkill ratings.
 
         Parameters
         ----------
-        metric : str
-            Category to score (default: "safety")
         mu : float
             Initial mean skill value (default: 25.0)
         sigma : float
@@ -100,10 +95,8 @@ class TrueSkillRanks(BaseComparison):
             backend=backend,
         )
 
-        self.prepare_matches(metric=metric, sort_by_time=sort_by_time,
-                           timestamp_col=timestamp_col)
         df_ = self.get_matches().copy()
-        print(f"Analyzing {df_.shape[0]} '{metric}' comparisons")
+        print(f" Processing {df_.shape[0]} comparisons")
 
         # Initialize all images with default rating
         self.ratings: dict = {}  # image_id -> trueskill.Rating object
@@ -140,7 +133,7 @@ class TrueSkillRanks(BaseComparison):
     def normalize(self, normalize=True, min_range=0, max_range=10,
                   use_conservative=True, **kwargs):
         """
-        Build self.scores_df with TrueSkill metrics.
+        Build self.scores_df with TrueSkill.
 
         Parameters
         ----------
@@ -159,14 +152,14 @@ class TrueSkillRanks(BaseComparison):
                 "image_id": img_id,
                 "TrueSkillMu": rating.mu,
                 "TrueSkillSigma": rating.sigma,
-                "TrueSkillConservative": conservative,
+                "TrueSkillRank": conservative,
                 "matches_played": self.match_count[img_id],
             })
 
         df_ = pd.DataFrame(data)
 
         # Choose which metric to normalize
-        raw_col = "TrueSkillConservative" if use_conservative else "TrueSkillMu"
+        raw_col = "TrueSkillRank" if use_conservative else "TrueSkillMu"
 
         df_ = self.normalize_scores(
             df_,
@@ -177,7 +170,7 @@ class TrueSkillRanks(BaseComparison):
             max_range=max_range,
         )
 
-        self.scores_df = pd.merge(df_, self.images_df, on="image_id", how="left")
+        self.scores_df = pd.merge(df_, self.samples_df, on="image_id", how="left")
 
     def get_scores(self) -> pd.DataFrame:
         """
@@ -187,7 +180,7 @@ class TrueSkillRanks(BaseComparison):
             - image_id
             - TrueSkillMu: skill mean
             - TrueSkillSigma: skill uncertainty (lower = more certain)
-            - TrueSkillConservative: μ - 3σ (99.7% confidence lower bound)
+            - TrueSkillRank: μ - 3σ (99.7% confidence lower bound)
             - TrueSkillScore: normalized score [0, 10]
             - matches_played: number of comparisons
             - lat, long, city, country, continent
@@ -257,7 +250,7 @@ class TrueSkillRanks(BaseComparison):
             raise RuntimeError("Must call normalize() before getting leaderboard")
 
         col_map = {
-            "conservative": "TrueSkillConservative",
+            "conservative": "TrueSkillRank",
             "mu": "TrueSkillMu",
             "score": "TrueSkillScore",
         }
