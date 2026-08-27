@@ -1,6 +1,6 @@
 # UrbaNet
 
-Exploring the PlacePulse 2.0 dataset and analyzing the urban safety perception through visual features. [Paper](https://fmorenovr.github.io/documents/papers/conferences/2021_WIIAT.pdf).
+Exploring the PlacePulse 2.0 dataset and analyzing the urban safety perception through visual features. [Paper](https://fmorenovr.github.io/documents/articles/conferences/2021_WIIAT.pdf).
 
 # Requirements
 
